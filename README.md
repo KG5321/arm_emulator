@@ -1,5 +1,5 @@
 # **ARM Cortex-M0 emulator**
-
+### ***Disclaimer! Emulator is not finished yet!***
 ## **Quick start**
 ### *Prerequisites*
 You need PyQT5 to be able to run emulator in gui mode
