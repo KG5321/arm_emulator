@@ -5,7 +5,9 @@ class Ui_CortexM0UI(object):
     def setupUi(self, CortexM0UI):
         CortexM0UI.setObjectName("CortexM0UI")
         CortexM0UI.setEnabled(True)
-        CortexM0UI.resize(380, 518)
+        CortexM0UI.setFixedSize(380, 518)
+        self.filename = None
+        self.m = CortexM0lator()
         self.centralwidget = QtWidgets.QWidget(CortexM0UI)
         self.centralwidget.setObjectName("centralwidget")
         self.listView = QtWidgets.QListWidget(self.centralwidget)
@@ -17,6 +19,9 @@ class Ui_CortexM0UI(object):
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton.setGeometry(QtCore.QRect(260, 30, 111, 32))
         self.pushButton.setObjectName("pushButton")
+        self.button2 = QtWidgets.QPushButton(self.centralwidget)
+        self.button2.setGeometry(QtCore.QRect(260, 60, 111, 32))
+        self.button2.setObjectName("button2")
         CortexM0UI.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(CortexM0UI)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 380, 22))
@@ -31,30 +36,45 @@ class Ui_CortexM0UI(object):
         self.actionLoad_hex_file.setObjectName("actionLoad_hex_file")
         self.menuFile.addAction(self.actionLoad_hex_file)
         self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.setNativeMenuBar(False)
+        self.error_dialog = QtWidgets.QErrorMessage()
 
         self.retranslateUi(CortexM0UI)
         QtCore.QMetaObject.connectSlotsByName(CortexM0UI)
 
         self.pushButton.clicked.connect(self.run)
+        self.button2.clicked.connect(self.getRegisters)
+        self.actionLoad_hex_file.triggered.connect(self.setFilePath)
 
     def retranslateUi(self, CortexM0UI):
         _translate = QtCore.QCoreApplication.translate
         CortexM0UI.setWindowTitle(_translate("CortexM0UI", "CortexM0lator"))
         self.label.setText(_translate("CortexM0UI", "Registers"))
         self.pushButton.setText(_translate("CortexM0UI", "Run emulation"))
+        self.button2.setText(_translate("CortexM0UI", "Get registers"))
         self.menuFile.setTitle(_translate("CortexM0UI", "File"))
         self.actionLoad_hex_file.setText(_translate("CortexM0UI", "Load hex file"))
     
     def  run(self):
-        m = CortexM0lator()
-        m.read_hex_data('/Users/Konrad/Developer/Python/arm_emulator/hex_files/STM32F0-GPIO.hex')
-        m.memory.write_register('r10', 0xfafa)
-        for key in m.memory._registers:
-            value = key + ': ' + '0x' + str(hex(m.memory._registers[key])[2:].zfill(4))
+        if self.filename is not None:
+            self.m.read_hex_data(self.filename)
+            self.m.memory.write_register('r10', 0xfafa)
+            self.listView.clear()
+            for key in self.m.memory._registers:
+                value = key + ': ' + '0x' + str(hex(self.m.memory._registers[key])[2:].zfill(4))
+                self.listView.addItem(value)
+            self.m.run()
+        else: 
+            self.error_dialog.showMessage('File not loaded!')
+    
+    def setFilePath(self):
+        self.filename, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Select hex file", "", "Intel HEX Files (*.hex)")
+
+    def getRegisters(self):
+        self.listView.clear()
+        for key in self.m.memory._registers:
+            value = key + ': ' + '0x' + str(hex(self.m.memory._registers[key])[2:].zfill(4))
             self.listView.addItem(value)
-        m.run()
-
-
 
 
 if __name__ == "__main__":

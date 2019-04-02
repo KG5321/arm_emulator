@@ -26,7 +26,7 @@ class CortexM0lator:
         while self._is_cpu_running and self.memory.pc() < 65534:
             instruction = self.read_memory(self.memory.pc())
 
-            # here instructions will be read and executed
+            # decoder
             if instruction is not None: # temporary 
                 print(hex(self.memory.pc()), bin(int(instruction, 16))[2:].zfill(16))
 
@@ -45,8 +45,3 @@ class CortexM0lator:
         if self._is_cpu_running:
             return 'Running'
         return 'Not running'
-
-
-
-        # arm-none-eabi-gcc
-        # github
