@@ -24,12 +24,51 @@ class CortexM0lator:
     def _cpu_loop(self):
         ''' Main cpu loop '''
         while self._is_cpu_running and self.memory.pc() < 65534:
-            instruction = self.read_memory(self.memory.pc())
+            
+            instr = self.read_memory(self.memory.pc())
+            
+            if instr is None:
+                self._is_cpu_running = False
+                break
+            
+            instruction = int(instr, 16)
 
-            # decoder
-            if instruction is not None: # temporary 
-                print(hex(self.memory.pc()), bin(int(instruction, 16))[2:].zfill(16))
+            if instruction & 0xC000 == 0:
+                print("shift, add, sub etc")
 
+            if instruction & 0xFC00 == 0x4000:
+                print("data processing")
+
+            if instruction & 0xFC00 == 0x4400:
+                print("special data instr")
+            
+            if instruction & 0xF800 == 0x4800:
+                print("load from literal pool")
+            
+            if instruction & 0xF000 == 0x5000 or instruction & 0xE000 == 0x6000 or instruction & 0xE000 == 0x8000:
+                print("load/store single data item")
+
+            if instruction & 0xF800 == 0xA000:
+                print("generate pc-relative address")
+
+            if instruction & 0xF800 == 0xA800:
+                print("generate sp-relative address")
+            
+            if instruction & 0xF000 == 0xB000:
+                print("misc 16bit instr")
+            
+            if instruction & 0xF800 == 0xC000:
+                print("store multiple registers")
+            
+            if instruction & 0xF800 == 0xC800:
+                print("load multiple registers")
+            
+            if instruction & 0xF000 == 0xD000:
+                print("conditional branch")
+
+            if instruction & 0xF800 == 0xE000:
+                print("unconditional branch")
+            
             self.memory.inc_pc()
 
     def read_memory(self, address):
