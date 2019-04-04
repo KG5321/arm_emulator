@@ -34,7 +34,42 @@ class CortexM0lator:
             instruction = int(instr, 16)
 
             if instruction & 0xC000 == 0:
-                print("shift, add, sub etc")
+                if instruction & 0x3800 == 0:
+                    if instruction & 0x7C0 == 0:
+                        print("MOV (register)")
+                    else:
+                        print("LSL (immediate)")
+                
+                if instruction & 0x3800 == 0x0800:
+                    print("LSR (immediate)")
+
+                if instruction & 0x3800 == 0x1000:
+                    print("ASR (immediate)")
+
+                if instruction & 0x3E00 == 0x1800:
+                    print("ADD (register)")
+
+                if instruction & 0x3E00 == 0x1A00:
+                    print("SUB (register)")
+                
+                if instruction & 0x3E00 == 0x1C00:
+                    print("ADD (immediate)")
+
+                if instruction & 0x3E00 == 0x1E00:
+                    print("SUB (immediate)")
+
+                if instruction & 0x3800 == 0x2000:
+                    print("MOV (immediate)")
+                
+                if instruction & 0x3800 == 0x2800:
+                    print("CMP (immediate)")
+
+                if instruction & 0x3800 == 0x3000:
+                    print("ADD 8-bit (immediate)")
+                
+                if instruction & 0x3800 == 0x3800:
+                    print("SUB 8-bit (immediate)")
+
 
             if instruction & 0xFC00 == 0x4000:
                 print("data processing")
