@@ -34,6 +34,7 @@ class CortexM0lator:
             instruction = int(instr, 16)
 
             if instruction & 0xC000 == 0:
+
                 if instruction & 0x3800 == 0:
                     if instruction & 0x7C0 == 0:
                         print("MOV (register)")
@@ -72,37 +73,213 @@ class CortexM0lator:
 
 
             if instruction & 0xFC00 == 0x4000:
-                print("data processing")
+
+                if instruction & 0x3C0 == 0:
+                    print("AND (register)")
+
+                if instruction & 0x3C0 == 0x40:
+                    print("EOR (register")
+                
+                if instruction & 0x3C0 == 0x80:
+                    print("LSL (register)")
+
+                if instruction & 0x3C0 == 0xC0:
+                    print("LSR (register)")
+
+                if instruction & 0x3C0 == 0x100:
+                    print("ASR (register)")
+                
+                if instruction & 0x3C0 == 0x140:
+                    print("ADC (register)")
+
+                if instruction & 0x3C0 == 0x180:
+                    print("SBC (register)")
+
+                if instruction & 0x3C0 == 0x1C0:
+                    print("ROR (register)")
+
+                if instruction & 0x3C0 == 0x200:
+                    print("TST (register)")
+                
+                if instruction & 0x3C0 == 0x240:
+                    print("RSB (immediate)")
+                
+                if instruction & 0x3C0 == 0x280:
+                    print("CMP (register)")
+
+                if instruction & 0x3C0 == 0x2C0:
+                    print("CMN (register)")
+
+                if instruction & 0x3C0 == 0x300:
+                    print("ORR (register)")
+
+                if instruction & 0x3C0 == 0x340:
+                    print("MUL")
+                
+                if instruction & 0x3C0 == 0x380:
+                    print("BIC (register)")
+                
+                if instruction & 0x3C0 == 0x3C0:
+                    print("MVN (register)")
 
             if instruction & 0xFC00 == 0x4400:
-                print("special data instr")
-            
+                
+                if instruction & 0x300 == 0:
+                    print("ADD (register)")
+                
+                if instruction & 0x3C0 == 0x100:
+                    print("UNPREDICTABLE")
+
+                if instruction & 0x3C0 == 0x140 or instruction & 0x380 == 0x180:
+                    print("CMP (register)")
+
+                if instruction & 0x300 == 0x200:
+                    print("MOV (register)")
+                
+                if instruction & 0x380 == 0x300:
+                    print("BX")
+
+                if instruction & 0x380 == 0x380:
+                    print("BLX (register)")
+
             if instruction & 0xF800 == 0x4800:
-                print("load from literal pool")
+                print("LDR (literal)")
             
             if instruction & 0xF000 == 0x5000 or instruction & 0xE000 == 0x6000 or instruction & 0xE000 == 0x8000:
-                print("load/store single data item")
+                if instruction & 0xF000 == 0x5000:
+                    if instruction & 0xE00 == 0:
+                        print("STR (register)")
+                    
+                    if instruction & 0xE00 == 0x200:
+                        print("STRH (register)")
+
+                    if instruction & 0xE00 == 0x400:
+                        print("STRB (register)")
+
+                    if instruction & 0xE00 == 0x600:
+                        print("LDRSB (register)")
+
+                    if instruction & 0xE00 == 0x800:
+                        print("LDR (register)")
+
+                    if instruction & 0xE00 == 0xA00:
+                        print("LDRH (register)")
+
+                    if instruction & 0xE00 == 0xC00:
+                        print("LDRB (register")
+
+                    if instruction & 0xE00 == 0xE00:
+                        print("LDRSH (register)")
+
+                if instruction & 0xF000 == 0x6000:
+                    if instruction & 0x800 == 0:
+                        print("STR (immediate)")
+                    
+                    if instruction & 0x800 == 0x800:
+                        print("LDR (immediate)")
+
+                if instruction & 0xF000 == 0x7000:
+                    if instruction & 0x800 == 0:
+                        print("STRB (immediate)")
+                    
+                    if instruction & 0x800 == 0x800:
+                        print("LDRB (immediate)")
+
+                if instruction & 0xF000 == 0x8000:
+                    if instruction & 0x800 == 0:
+                        print("STRH (immediate)")
+                    
+                    if instruction & 0x800 == 0x800:
+                        print("LDRH (immediate)")
+
+                if instruction & 0xF000 == 0x9000:
+                    if instruction & 0x800 == 0:
+                        print("STR (immediate)")
+                    
+                    if instruction & 0x800 == 0x800:
+                        print("LDR (immediate)")
 
             if instruction & 0xF800 == 0xA000:
-                print("generate pc-relative address")
+                print("ADR")
 
             if instruction & 0xF800 == 0xA800:
-                print("generate sp-relative address")
+                print("ADD (SP plus immediate)")
             
             if instruction & 0xF000 == 0xB000:
-                print("misc 16bit instr")
-            
+                
+                if instruction & 0xF80 == 0:
+                    print("ADD (SP plus immediate)")
+
+                if instruction & 0xF80 == 0x80:
+                    print("SUM (SP minus immediate)")
+
+                if instruction & 0xFC0 == 0x200:
+                    print("SXTH")
+
+                if instruction & 0xFC0 == 0x240:
+                    print("SXTB")
+                
+                if instruction & 0xFC0 == 0x280:
+                    print("UXTH")
+                
+                if instruction & 0xFC0 == 0x2C0:
+                    print("UXTB")
+
+                if instruction & 0xE00 == 0x400:
+                    print("PUSH")
+                
+                if instruction & 0xFE0 == 0x660:
+                    print("CPS")
+                
+                if instruction & 0xFC0 == 0xA00:
+                    print("REV")
+                
+                if instruction & 0xFC0 == 0xA40:
+                    print("REV16")
+                
+                if instruction & 0xFC0 == 0xAC0:
+                    print("REVSH")
+
+                if instruction & 0xE00 == 0xC00:
+                    print("POP")
+
+                if instruction & 0xF00 == 0xE00:
+                    print("BKPT")
+
+                if instruction & 0xF00 == 0xF00:
+                    if instruction & 0xFF == 0:
+                        print("NOP")
+                    
+                    if instruction & 0xFF == 0x10:
+                        print("YIELD")
+                    
+                    if instruction & 0xFF == 0x20:
+                        print("WFE")
+
+                    if instruction & 0xFF == 0x30:
+                        print("WFI")
+
+                    if instruction & 0xFF == 0x40:
+                        print("SEV")
+
             if instruction & 0xF800 == 0xC000:
-                print("store multiple registers")
+                print("STM, STMIA, STMEA")
             
             if instruction & 0xF800 == 0xC800:
-                print("load multiple registers")
+                print("LDM, LDMIA, LDMFD")
             
             if instruction & 0xF000 == 0xD000:
-                print("conditional branch")
+                if instruction & 0xE00 != 0xE00:
+                    print("B")
+
+                if instruction & 0xF00 == 0xE00:
+                    print("UDF")
+                
+                if instruction & 0xF00 == 0xF00:
+                    print("SVC")
 
             if instruction & 0xF800 == 0xE000:
-                print("unconditional branch")
+                print("B")
             
             self.memory.inc_pc()
 
