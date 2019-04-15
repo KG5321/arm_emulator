@@ -32,6 +32,8 @@ class CortexM0lator:
                 break
             
             instruction = int(instr, 16)
+            # print(f"PC: {bin(self.memory.pc())}")
+            # print(f"instr: {bin(instruction)}")
 
             if instruction & 0xC000 == 0:
 
@@ -204,14 +206,19 @@ class CortexM0lator:
 
             if instruction & 0xF800 == 0xA800:
                 print("ADD (SP plus immediate)")
+                # print(bin(instruction))
+                rd = instruction & 0x700
+                rd = rd >> 8
+                imm8 = instruction & 0xFF
+                # print(f"ADD r{rd} sp #{imm8}")
             
             if instruction & 0xF000 == 0xB000:
                 
                 if instruction & 0xF80 == 0:
                     print("ADD (SP plus immediate)")
-
+                    
                 if instruction & 0xF80 == 0x80:
-                    print("SUM (SP minus immediate)")
+                    print("SUB (SP minus immediate)")
 
                 if instruction & 0xFC0 == 0x200:
                     print("SXTH")
@@ -227,6 +234,15 @@ class CortexM0lator:
 
                 if instruction & 0xE00 == 0x400:
                     print("PUSH")
+                    # print(bin(instruction))
+                    imm8 = instruction & 0xFF
+                    imm8 = imm8 >> 8
+                    m = instruction & 0x100
+                    m = m >> 8
+
+                    # a = 0b0100 0000 0000 0000
+                    
+                    
                 
                 if instruction & 0xFE0 == 0x660:
                     print("CPS")
