@@ -48,7 +48,7 @@ class HexParser:
                     size = int(line[:2], 16)
                     address = int(line[2:6], 16)
                     record_type = int(line[6:8], 16)
-                    if size > 0:
+                    if size > 0 and record_type == 0:
                         data = hex(int(line[8:], 16))
                         self._memory.write_memory(address, data, size)
                 else:
