@@ -23,7 +23,7 @@ class CortexM0lator:
 
     def _cpu_loop(self):
         ''' Main cpu loop '''
-        while self._is_cpu_running and self.memory.pc() < 65534:
+        while self._is_cpu_running:
             
             instr = self.read_memory(self.memory.pc())
             
@@ -32,8 +32,8 @@ class CortexM0lator:
                 break
             
             instruction = int(instr, 16)
-            # print(f"PC: {bin(self.memory.pc())}")
-            # print(f"instr: {bin(instruction)}")
+            print(f"PC: {hex(self.memory.pc())}")
+            print(f"instr: {hex(instruction)}")
 
             if instruction & 0xC000 == 0:
 

@@ -2,6 +2,7 @@ class Mem0ry:
     
     def __init__(self):
         self._memory = [None] * 65535
+        self._start_addr = 0
         # General purpose registers
         self._r0 = 0x0000
         self._r1 = 0x0000
@@ -44,6 +45,7 @@ class Mem0ry:
                      'control': self._control}
 
     def read_memory(self, address, size):
+        address = address - self._start_addr
         last_byte = address + size
         data = self._memory[address]
         byte_counter = 1
@@ -55,6 +57,7 @@ class Mem0ry:
         return data
 
     def write_memory(self, address, data, size):
+        address = address - self._start_addr
         current_address = address + size - 1
         if 'x' not in data[-2:]:
             self._memory[current_address] = data[-2:]
@@ -81,9 +84,15 @@ class Mem0ry:
     
     def write_register(self, register, data):
         self._registers[register] = data
+    
+    def set_start_address(self, address):
+        self._start_addr = address
+
+    def set_pc(self, data):
+        pass
 
     def pc(self):
-        return self._r15
+        return self._r15 + self._start_addr
     
     def inc_pc(self):
         self._r15 += 2
