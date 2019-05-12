@@ -32,8 +32,8 @@ class CortexM0lator:
                 break
             
             instruction = int(instr, 16)
-            print(f"PC: {hex(self.memory.pc())}")
-            print(f"instr: {hex(instruction)}")
+            # print(f"PC: {hex(self.memory.pc())}")
+            # print(f"instr: {hex(instruction)}")
 
             if instruction & 0xC000 == 0:
 

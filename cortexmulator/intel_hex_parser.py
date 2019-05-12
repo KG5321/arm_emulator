@@ -51,7 +51,14 @@ class HexParser:
                     if record_type == 4:
                         self._memory.set_start_address(int(line[8:], 16)*65536)
                     if size > 0 and record_type == 0:
-                        data = hex(int(line[8:], 16))
+                        raw_data = line[8:]
+                        input_len = len(raw_data)
+                        i = 0
+                        result_data = ""
+                        while(i < input_len):
+                            result_data += raw_data[i+2] + raw_data[i+3] + raw_data[i] + raw_data[i+1]
+                            i += 4
+                        data = result_data
                         self._memory.write_memory(address + self._memory._start_addr, data, size)
                 else:
                     print(f"Error in line {line_counter}\n {line}")
