@@ -33,7 +33,7 @@ class CortexM0lator:
             
             instruction = int(instr, 16)
             # print(f"PC: {hex(self.memory.pc())}")
-            # print(f"instr: {hex(instruction)}")
+            # print(f"instr: {bin(instruction)}")
 
             if instruction & 0xC000 == 0:
 
@@ -205,12 +205,12 @@ class CortexM0lator:
                 print("ADR")
 
             if instruction & 0xF800 == 0xA800:
-                print("ADD (SP plus immediate)")
+                # print("ADD (SP plus immediate)")
                 # print(bin(instruction))
                 rd = instruction & 0x700
                 rd = rd >> 8
                 imm8 = instruction & 0xFF
-                # print(f"ADD r{rd} sp #{imm8}")
+                print(f"ADD r{rd} sp #{imm8}")
             
             if instruction & 0xF000 == 0xB000:
                 
@@ -233,14 +233,19 @@ class CortexM0lator:
                     print("UXTB")
 
                 if instruction & 0xE00 == 0x400:
-                    print("PUSH")
-                    # print(bin(instruction))
+                    # print("PUSH")
                     imm8 = instruction & 0xFF
-                    imm8 = imm8 >> 8
+                    registers = str(bin(imm8))[2:]
+                    register_list = []
+                    for idx, i in enumerate(registers[::-1]):
+                        if i == '1':
+                            register_list.append(f"r{idx}")
                     m = instruction & 0x100
                     m = m >> 8
-
-                    # a = 0b0100 0000 0000 0000
+                    lr = False
+                    if m == 1:
+                        register_list.append('lr')
+                    print(f"PUSH {register_list}")
                     
                     
                 
@@ -287,6 +292,7 @@ class CortexM0lator:
             if instruction & 0xF000 == 0xD000:
                 if instruction & 0xE00 != 0xE00:
                     print("B")
+                    print(bin(instruction))
 
                 if instruction & 0xF00 == 0xE00:
                     print("UDF")
@@ -295,7 +301,15 @@ class CortexM0lator:
                     print("SVC")
 
             if instruction & 0xF800 == 0xE000:
-                print("B")
+                # print("B")
+                imm11 = instruction & 0x7FF
+                self.memory._r15 = self.memory._r15 + imm11
+                imm_ext_len = 32 - len(str(bin(imm11))[2:])
+                # print(imm_ext_len)
+                imm32 = ""
+                # for i in imm_ext_len:
+                #     imm32 += '1'
+                print(f"B {bin(imm11+self.memory._start_addr)}")
             
             self.memory.inc_pc()
 
