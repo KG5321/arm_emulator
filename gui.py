@@ -58,7 +58,6 @@ class Ui_CortexM0UI(object):
     def  run(self):
         if self.filename is not None:
             self.m.read_hex_data(self.filename)
-            self.m.memory.write_register('r10', 0xfafa)
             self.listView.clear()
             for key in self.m.memory._registers:
                 value = key + ': ' + '0x' + str(hex(self.m.memory._registers[key])[2:].zfill(4))

@@ -18,7 +18,7 @@ class Mem0ry:
         self._r11 = 0x0000
         self._r12 = 0x0000
         # Special registers
-        self._r13 = 0x0000 # Stack pointer
+        self._r13 = 0xFF00 # Stack pointer
         self._r14 = 0x0000 # Link register
         self._r15 = 0x0000 # Program counter
         self._psr = 0x0000 # Program status register
@@ -43,6 +43,7 @@ class Mem0ry:
                      'psr': self._psr,
                      'primask': self._primask,
                      'control': self._control}
+        self._stack = [None] * 65535
 
     def read_memory(self, address, size):
         address = address - self._start_addr
@@ -88,11 +89,27 @@ class Mem0ry:
     def set_start_address(self, address):
         self._start_addr = address
 
-    def set_pc(self, data):
-        pass
+    def set_pc(self, value):
+        val = value - self._start_addr
+        self._r15 = val
 
     def pc(self):
         return self._r15 + self._start_addr
     
     def inc_pc(self):
         self._r15 += 2
+
+    def sp(self):
+        return self._r13
+    
+    def set_sp(self, value):
+        self._r13 = value
+    
+    def push_to_stack(self, value):
+        pass
+
+    def pop_from_stack(self):
+        pass
+
+    def _get_stack(self):
+        return self._stack

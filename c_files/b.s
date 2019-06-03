@@ -24,12 +24,12 @@ main:
 	push	{r7, lr}
 	sub	sp, sp, #8
 	add	r7, sp, #0
-	movs	r3, #5
+	movs	r3, #4
 	str	r3, [r7, #4]
 	movs	r3, #0
 	str	r3, [r7]
 	ldr	r3, [r7, #4]
-	adds	r3, r3, #11
+	adds	r3, r3, #6
 	str	r3, [r7]
 	nop
 	mov	sp, r7
@@ -37,4 +37,4 @@ main:
 	@ sp needed
 	pop	{r7, pc}
 	.size	main, .-main
-	.ident	"GCC: (GNU Tools for Arm Embedded Processors 8-2018-q4-major) 8.2.1 20181213 (release) [gcc-8-branch revision 267074]"
+	.ident	"GCC: (Arch Repository) 9.1.0"

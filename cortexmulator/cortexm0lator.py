@@ -1,5 +1,6 @@
 from cortexmulator.intel_hex_parser import HexParser
 from cortexmulator.mem0ry import Mem0ry
+from bitstring import BitArray
 
 
 ''' Main ARM Cortex-M0 emulation class '''
@@ -62,12 +63,20 @@ class CortexM0lator:
                     print("SUB (immediate)")
 
                 if instruction & 0x3800 == 0x2000:
-                    print("MOV (immediate)")
+                    rd = (instruction & 0x700) >> 8
+                    imm8 = instruction & 0xFF
+                    self.memory.write_register(f'r{rd}', imm8)
+                    print(f"MOV r{rd} {imm8}")
                 
                 if instruction & 0x3800 == 0x2800:
                     print("CMP (immediate)")
 
                 if instruction & 0x3800 == 0x3000:
+                    imm8 = instruction & 0xFF
+                    rdn = (instruction & 0x700) >> 8
+                    rdn_val = self.memory.read_register(f'r{rdn}')
+                    result = imm8 + rdn_val
+                    self.memory.write_register(f'r{rdn}', result)
                     print("ADD 8-bit (immediate)")
                 
                 if instruction & 0x3800 == 0x3800:
@@ -136,6 +145,11 @@ class CortexM0lator:
                     print("CMP (register)")
 
                 if instruction & 0x300 == 0x200:
+                    rd = instruction & 0x7
+                    rm = (instruction & 0x78) >> 3
+                    d = instruction & 0x80 >> 4
+                    rd += d
+                    self.memory.write_register(f'r{rd}', self.memory.read_register(f'r{rm}'))
                     print("MOV (register)")
                 
                 if instruction & 0x380 == 0x300:
@@ -175,9 +189,21 @@ class CortexM0lator:
 
                 if instruction & 0xF000 == 0x6000:
                     if instruction & 0x800 == 0:
+                        rt = instruction & 0x7
+                        rn = (instruction & 0x38) >> 3
+                        imm5 = (instruction & 0x7C0) >> 6
+                        offset_addr = self.memory.read_register(f'r{rn}') + imm5 + self.memory._start_addr
+                        data = str(hex(self.memory.read_register(f'r{rt}')))[2:]
+                        data_len = len(data)
+                        self.memory.write_memory(offset_addr, data, data_len)
                         print("STR (immediate)")
                     
                     if instruction & 0x800 == 0x800:
+                        rt = instruction & 0x7
+                        rn = (instruction & 0x38) >> 3
+                        imm5 = (instruction & 0x7C0) >> 6
+                        offset_addr = self.memory.read_register(f'r{rn}') + imm5 + self.memory._start_addr
+                        self.memory.write_register(f'r{rt}', int(self.memory.read_memory(offset_addr, 2)))
                         print("LDR (immediate)")
 
                 if instruction & 0xF000 == 0x7000:
@@ -205,11 +231,12 @@ class CortexM0lator:
                 print("ADR")
 
             if instruction & 0xF800 == 0xA800:
-                # print("ADD (SP plus immediate)")
-                # print(bin(instruction))
                 rd = instruction & 0x700
                 rd = rd >> 8
                 imm8 = instruction & 0xFF
+                sp_val = self.memory.read_register('r13')
+                sp_val += imm8
+                self.memory.write_register(f'r{rd}',sp_val)
                 print(f"ADD r{rd} sp #{imm8}")
             
             if instruction & 0xF000 == 0xB000:
@@ -218,6 +245,14 @@ class CortexM0lator:
                     print("ADD (SP plus immediate)")
                     
                 if instruction & 0xF80 == 0x80:
+                    print(bin(instruction))
+                    imm7 = instruction & 0x7F
+                    imm32 = self.zero_extend(imm7)
+                    imm32 = str(bin(0xFFFFFFFF - int(imm32, 2)))[2:]
+                    print(imm32)
+                    int_imm32 = BitArray(bin=imm32).int
+                    print(int_imm32)
+                    
                     print("SUB (SP minus immediate)")
 
                 if instruction & 0xFC0 == 0x200:
@@ -233,18 +268,21 @@ class CortexM0lator:
                     print("UXTB")
 
                 if instruction & 0xE00 == 0x400:
-                    # print("PUSH")
                     imm8 = instruction & 0xFF
                     registers = str(bin(imm8))[2:]
                     register_list = []
                     for idx, i in enumerate(registers[::-1]):
                         if i == '1':
                             register_list.append(f"r{idx}")
+                            reg_val = self.memory.read_register(f'r{idx}')
+                            self.memory.push_to_stack(reg_val)
                     m = instruction & 0x100
                     m = m >> 8
                     lr = False
                     if m == 1:
                         register_list.append('lr')
+                        lr_val = self.memory.read_register('r14')
+                        self.memory.push_to_stack(lr_val)
                     print(f"PUSH {register_list}")
                     
                     
@@ -301,15 +339,13 @@ class CortexM0lator:
                     print("SVC")
 
             if instruction & 0xF800 == 0xE000:
-                # print("B")
                 imm11 = instruction & 0x7FF
-                self.memory._r15 = self.memory._r15 + imm11
-                imm_ext_len = 32 - len(str(bin(imm11))[2:])
-                # print(imm_ext_len)
-                imm32 = ""
-                # for i in imm_ext_len:
-                #     imm32 += '1'
-                print(f"B {bin(imm11+self.memory._start_addr)}")
+                imm32 = self.sign_extend(imm11)
+                int_imm32 = BitArray(bin=imm32).int
+                current_pc = self.memory.pc()
+                new_pc = current_pc + int_imm32
+                self.memory.set_pc(new_pc)
+                print(f"B {hex(new_pc)}")
             
             self.memory.inc_pc()
 
@@ -326,3 +362,19 @@ class CortexM0lator:
         if self._is_cpu_running:
             return 'Running'
         return 'Not running'
+    
+    def zero_extend(self, imm):
+        imm_ext_len = 32 - len(str(bin(imm))[2:])
+        imm32 = ""
+        for i in range(imm_ext_len):
+            imm32 += '0'
+        imm32 += str(bin(imm))[2:]
+        return imm32
+
+    def sign_extend(self, imm):
+        imm_ext_len = 32 - len(str(bin(imm))[2:])
+        imm32 = ""
+        for i in range(imm_ext_len):
+            imm32 += '1'
+        imm32 += str(bin(imm))[2:]
+        return imm32

@@ -1,5 +1,5 @@
 void main(){
-    int a = 5;
+    int a = 4;
     int b = 0;
-    b = a+11;
+    b = a+6;
 }
